@@ -28,11 +28,15 @@ import org.pircbotx.UtilSSLSocketFactory;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.ActionEvent;
+import org.pircbotx.hooks.events.ConnectAttemptFailedEvent;
+import org.pircbotx.hooks.events.ConnectEvent;
+import org.pircbotx.hooks.events.DisconnectEvent;
 import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.NoticeEvent;
 import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
+import org.pircbotx.hooks.events.QuitEvent;
 import org.pircbotx.hooks.events.TopicEvent;
 
 import java.io.BufferedWriter;
@@ -40,6 +44,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -188,6 +193,57 @@ public final class Historian extends ListenerAdapter
   }
 
   @Override
+  public void onConnect(
+    final ConnectEvent event)
+    throws Exception
+  {
+    super.onConnect(event);
+    this.logMessage("self: connected");
+  }
+
+  @Override
+  public void onConnectAttemptFailed(
+    final ConnectAttemptFailedEvent event)
+    throws Exception
+  {
+    super.onConnectAttemptFailed(event);
+
+    event.getConnectExceptions().forEach((address, exception) -> {
+      try {
+        this.logMessage(
+          String.format(
+            "self: connection failed: %s - %s",
+            address,
+            exception.getClass().getCanonicalName(),
+            exception.getMessage()));
+      } catch (final IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    });
+  }
+
+  @Override
+  public void onDisconnect(
+    final DisconnectEvent event)
+    throws Exception
+  {
+    super.onDisconnect(event);
+
+    final Exception ex = event.getDisconnectException();
+    if (ex != null) {
+      this.logMessage(
+        String.format(
+          "self: disconnected: %s - %s",
+          ex.getClass().getCanonicalName(),
+          ex.getMessage()));
+    } else {
+      this.logMessage(
+        String.format(
+          "self: disconnected: (no exception information available)"));
+    }
+  }
+
+  @Override
   public void onNotice(
     final NoticeEvent event)
     throws Exception
@@ -264,6 +320,12 @@ public final class Historian extends ListenerAdapter
       this.logMessage(
         String.format(
           "status: %s: available", Historian.getUserID(user)));
+    } else {
+      this.logMessage(
+        String.format(
+          "self: joined: %s %s",
+          event.getChannel().getChannelId(),
+          event.getChannel().getName()));
     }
   }
 

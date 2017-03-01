@@ -65,7 +65,9 @@ public final class Historian extends ListenerAdapter
     this.channel = NullCheck.notNull(in_channel);
 
     try {
-      this.logMessage("self: started");
+      this.logMessage(
+        String.format("self: started: %s",
+                      Historian.class.getPackage().getImplementationVersion()));
     } catch (final IOException e) {
       throw new UncheckedIOException(e);
     }

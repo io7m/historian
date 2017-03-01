@@ -63,6 +63,22 @@ public final class Historian extends ListenerAdapter
   {
     this.log_directory = NullCheck.notNull(in_log_directory);
     this.channel = NullCheck.notNull(in_channel);
+
+    try {
+      this.logMessage(
+        String.format("self: started: %s",
+                      Historian.class.getPackage().getImplementationVersion()));
+    } catch (final IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      try {
+        this.logMessage("self: shutting down");
+      } catch (final IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    }));
   }
 
   public static void main(

@@ -16,7 +16,6 @@
 
 package com.io7m.irc_historian;
 
-import com.io7m.jnull.NullCheck;
 import com.io7m.jproperties.JProperties;
 import com.io7m.jproperties.JPropertyIncorrectType;
 import com.io7m.jproperties.JPropertyNonexistent;
@@ -36,7 +35,6 @@ import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.NoticeEvent;
 import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
-import org.pircbotx.hooks.events.QuitEvent;
 import org.pircbotx.hooks.events.TopicEvent;
 
 import java.io.BufferedWriter;
@@ -48,6 +46,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.TimeZone;
 
@@ -61,8 +60,8 @@ public final class Historian extends ListenerAdapter
     final File in_log_directory,
     final String in_channel)
   {
-    this.log_directory = NullCheck.notNull(in_log_directory);
-    this.channel = NullCheck.notNull(in_channel);
+    this.log_directory = Objects.requireNonNull(in_log_directory);
+    this.channel = Objects.requireNonNull(in_channel);
 
     try {
       this.logMessage(
@@ -312,7 +311,7 @@ public final class Historian extends ListenerAdapter
     final PartEvent event)
     throws Exception
   {
-    final Configuration c = NullCheck.notNull(this.configuration);
+    final Configuration c = Objects.requireNonNull(this.configuration);
     final User user = event.getUser();
     final boolean me = user.getLogin().equals(c.getLogin());
     if (me == false) {
@@ -329,7 +328,7 @@ public final class Historian extends ListenerAdapter
     final JoinEvent event)
     throws Exception
   {
-    final Configuration c = NullCheck.notNull(this.configuration);
+    final Configuration c = Objects.requireNonNull(this.configuration);
     final User user = event.getUser();
     final boolean me = user.getLogin().equals(c.getLogin());
     if (me == false) {
@@ -356,6 +355,6 @@ public final class Historian extends ListenerAdapter
 
   public void setConfiguration(final Configuration in_configuration)
   {
-    this.configuration = NullCheck.notNull(in_configuration);
+    this.configuration = Objects.requireNonNull(in_configuration);
   }
 }

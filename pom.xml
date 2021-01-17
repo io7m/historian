@@ -22,7 +22,7 @@
   <url>https://github.com/io7m/historian</url>
 
   <properties>
-    <io7m.api.previousVersion>0.0.1</io7m.api.previousVersion>
+    <io7m.api.previousVersion>2.0.0</io7m.api.previousVersion>
   </properties>
 
   <licenses>

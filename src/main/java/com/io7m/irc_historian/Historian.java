@@ -17,14 +17,11 @@
 package com.io7m.irc_historian;
 
 import com.io7m.jproperties.JProperties;
-import com.io7m.jproperties.JPropertyIncorrectType;
-import com.io7m.jproperties.JPropertyNonexistent;
 import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.UserHostmask;
 import org.pircbotx.UtilSSLSocketFactory;
-import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.ActionEvent;
 import org.pircbotx.hooks.events.ConnectAttemptFailedEvent;
@@ -47,7 +44,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.TimeZone;
 
 public final class Historian extends ListenerAdapter
@@ -65,8 +61,9 @@ public final class Historian extends ListenerAdapter
 
     try {
       this.logMessage(
-        String.format("self: started: %s",
-                      Historian.class.getPackage().getImplementationVersion()));
+        String.format(
+          "self: started: %s",
+          Historian.class.getPackage().getImplementationVersion()));
     } catch (final IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -80,34 +77,40 @@ public final class Historian extends ListenerAdapter
     }));
   }
 
+  /**
+   * The command-line entry point.
+   *
+   * @param args Command-line arguments
+   *
+   * @throws Exception On errors
+   */
+
+  // CHECKSTYLE:OFF
   public static void main(
     final String[] args)
-    throws
-    IOException,
-    IrcException,
-    JPropertyNonexistent,
-    JPropertyIncorrectType
+    throws Exception
+  // CHECKSTYLE:ON
   {
     if (args.length < 1) {
       System.err.println("usage: historian.conf");
       System.exit(1);
     }
 
-    final Properties p = JProperties.fromFile(new File(args[0]));
+    final var p = JProperties.fromFile(new File(args[0]));
 
-    final UtilSSLSocketFactory tls_factory = new UtilSSLSocketFactory();
+    final var tls_factory = new UtilSSLSocketFactory();
     tls_factory.trustAllCertificates();
 
-    final File log_dir =
+    final var log_dir =
       new File(JProperties.getString(p, "com.io7m.historian.logs"));
 
-    final Configuration.Builder cb = new Configuration.Builder();
+    final var cb = new Configuration.Builder();
     cb.setName(JProperties.getString(p, "com.io7m.historian.user"));
     cb.setLogin(JProperties.getString(p, "com.io7m.historian.user"));
 
     {
-      final Package pack = Historian.class.getPackage();
-      final StringBuilder s = new StringBuilder();
+      final var pack = Historian.class.getPackage();
+      final var s = new StringBuilder();
       s.append(pack.getImplementationTitle());
       s.append("-");
       s.append(pack.getImplementationVersion());
@@ -127,29 +130,29 @@ public final class Historian extends ListenerAdapter
     cb.setAutoReconnect(true);
     cb.setEncoding(StandardCharsets.UTF_8);
 
-    final Historian h = new Historian(
+    final var h = new Historian(
       log_dir, JProperties.getString(p, "com.io7m.historian.channel"));
     cb.addListener(h);
-    final Configuration c = cb.buildConfiguration();
+    final var c = cb.buildConfiguration();
     h.setConfiguration(c);
 
-    final PircBotX bot = new PircBotX(c);
+    final var bot = new PircBotX(c);
     bot.startBot();
   }
 
   private static String getUserID(final User u)
   {
-    final String login = u.getLogin().isEmpty() ? "-" : u.getLogin();
-    final String hostmask = u.getHostmask().isEmpty() ? "-" : u.getHostmask();
-    final String nick = u.getNick().isEmpty() ? "-" : u.getNick();
+    final var login = u.getLogin().isEmpty() ? "-" : u.getLogin();
+    final var hostmask = u.getHostmask().isEmpty() ? "-" : u.getHostmask();
+    final var nick = u.getNick().isEmpty() ? "-" : u.getNick();
     return String.format("%s@%s/%s", login, hostmask, nick);
   }
 
   private static String getUserIDFromMask(final UserHostmask u)
   {
-    final String login = u.getLogin().isEmpty() ? "-" : u.getLogin();
-    final String hostmask = u.getHostmask().isEmpty() ? "-" : u.getHostmask();
-    final String nick = u.getNick().isEmpty() ? "-" : u.getNick();
+    final var login = u.getLogin().isEmpty() ? "-" : u.getLogin();
+    final var hostmask = u.getHostmask().isEmpty() ? "-" : u.getHostmask();
+    final var nick = u.getNick().isEmpty() ? "-" : u.getNick();
     return String.format("%s@%s/%s", login, hostmask, nick);
   }
 
@@ -158,7 +161,7 @@ public final class Historian extends ListenerAdapter
     final String from)
     throws IOException
   {
-    final StringBuilder s = new StringBuilder();
+    final var s = new StringBuilder();
     s.append("topic: ");
     s.append(from);
     s.append(": ");
@@ -170,35 +173,35 @@ public final class Historian extends ListenerAdapter
     final String message)
     throws IOException
   {
-    final Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    final var c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
-    final SimpleDateFormat logyear = new SimpleDateFormat("yyyy");
-    final SimpleDateFormat logmonth = new SimpleDateFormat("MM");
-    final SimpleDateFormat logday = new SimpleDateFormat("dd");
+    final var logyear = new SimpleDateFormat("yyyy");
+    final var logmonth = new SimpleDateFormat("MM");
+    final var logday = new SimpleDateFormat("dd");
 
-    final SimpleDateFormat logtime =
+    final var logtime =
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SZ");
 
     final File log_file;
     {
-      final File f0 = new File(this.log_directory, this.channel);
-      final File f1 = new File(f0, logyear.format(c.getTime()));
-      final File f2 = new File(f1, logmonth.format(c.getTime()));
+      final var f0 = new File(this.log_directory, this.channel);
+      final var f1 = new File(f0, logyear.format(c.getTime()));
+      final var f2 = new File(f1, logmonth.format(c.getTime()));
       log_file = new File(f2, logday.format(c.getTime()) + ".txt");
     }
 
-    final File log_dir = log_file.getParentFile();
+    final var log_dir = log_file.getParentFile();
     log_dir.mkdirs();
-    if (log_dir.isDirectory() == false) {
+    if (!log_dir.isDirectory()) {
       throw new IOException("Could not create log directory: " + log_dir);
     }
 
-    try (final BufferedWriter writer =
+    try (var writer =
            new BufferedWriter(
              new OutputStreamWriter(
                new FileOutputStream(log_file, true),
                StandardCharsets.UTF_8))) {
-      final String time = logtime.format(c.getTime());
+      final var time = logtime.format(c.getTime());
       writer.append(time);
       writer.append(' ');
       writer.append(message);
@@ -244,7 +247,7 @@ public final class Historian extends ListenerAdapter
   {
     super.onDisconnect(event);
 
-    final Exception ex = event.getDisconnectException();
+    final var ex = event.getDisconnectException();
     if (ex != null) {
       this.logMessage(
         String.format(
@@ -266,7 +269,7 @@ public final class Historian extends ListenerAdapter
     this.logMessage(
       String.format(
         "notice: %s: %s",
-        Historian.getUserID(event.getUser()),
+        getUserID(event.getUser()),
         event.getMessage()));
   }
 
@@ -278,7 +281,7 @@ public final class Historian extends ListenerAdapter
     this.logMessage(
       String.format(
         "chat: %s: %s",
-        Historian.getUserID(event.getUser()),
+        getUserID(event.getUser()),
         event.getMessage()));
   }
 
@@ -290,7 +293,7 @@ public final class Historian extends ListenerAdapter
     this.logMessage(
       String.format(
         "chat: %s: %s",
-        Historian.getUserID(event.getUser()),
+        getUserID(event.getUser()),
         "/me " + event.getMessage()));
   }
 
@@ -302,7 +305,7 @@ public final class Historian extends ListenerAdapter
     this.logMessage(
       String.format(
         "chat: %s: %s",
-        Historian.getUserID(event.getUser()),
+        getUserID(event.getUser()),
         event.getMessage()));
   }
 
@@ -311,14 +314,14 @@ public final class Historian extends ListenerAdapter
     final PartEvent event)
     throws Exception
   {
-    final Configuration c = Objects.requireNonNull(this.configuration);
+    final var c = Objects.requireNonNull(this.configuration);
     final User user = event.getUser();
-    final boolean me = user.getLogin().equals(c.getLogin());
-    if (me == false) {
+    final var me = user.getLogin().equals(c.getLogin());
+    if (!me) {
       this.logMessage(
         String.format(
           "status: %s: unavailable (%s)",
-          Historian.getUserID(user),
+          getUserID(user),
           event.getReason()));
     }
   }
@@ -328,13 +331,13 @@ public final class Historian extends ListenerAdapter
     final JoinEvent event)
     throws Exception
   {
-    final Configuration c = Objects.requireNonNull(this.configuration);
-    final User user = event.getUser();
-    final boolean me = user.getLogin().equals(c.getLogin());
-    if (me == false) {
+    final var c = Objects.requireNonNull(this.configuration);
+    final var user = event.getUser();
+    final var me = user.getLogin().equals(c.getLogin());
+    if (!me) {
       this.logMessage(
         String.format(
-          "status: %s: available", Historian.getUserID(user)));
+          "status: %s: available", getUserID(user)));
     } else {
       this.logMessage(
         String.format(
@@ -350,7 +353,7 @@ public final class Historian extends ListenerAdapter
     throws Exception
   {
     this.logSubjectChange(
-      event.getTopic(), Historian.getUserIDFromMask(event.getUser()));
+      event.getTopic(), getUserIDFromMask(event.getUser()));
   }
 
   public void setConfiguration(final Configuration in_configuration)

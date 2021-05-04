@@ -46,6 +46,10 @@ import java.util.Calendar;
 import java.util.Objects;
 import java.util.TimeZone;
 
+/**
+ * The Historian IRC bot.
+ */
+
 public final class Historian extends ListenerAdapter
 {
   private final File log_directory;
@@ -355,6 +359,12 @@ public final class Historian extends ListenerAdapter
     this.logSubjectChange(
       event.getTopic(), getUserIDFromMask(event.getUser()));
   }
+
+  /**
+   * Set the configuration for the bot.
+   *
+   * @param in_configuration The configuration
+   */
 
   public void setConfiguration(final Configuration in_configuration)
   {

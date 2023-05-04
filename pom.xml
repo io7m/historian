@@ -28,7 +28,7 @@
 
   <licenses>
     <license>
-      <name>ISC License</name>
+      <name>ISC</name>
       <url>http://io7m.com/license/isc.txt</url>
     </license>
   </licenses>
@@ -80,7 +80,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.1</version>
+      <version>1.4.7</version>
     </dependency>
   </dependencies>
 
